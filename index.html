@@ -1,1 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor Técnico IES San Diego de Alcalá</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root { --primary: #004085; --danger: #dc3545; --success: #28a745; --warning: #ffc107; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 10px; margin: 0; }
+        .container { background: white; width: 100%; max-width: 600px; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin: auto; }
+        
+        /* Esquema Visual con Imagen Real */
+        .machine-container { position: relative; width: 100%; background: #fff; border-radius: 10px; margin-bottom: 20px; text-align: center; border: 1px solid #ddd; padding: 10px 0; }
+        .machine-img { width: 90%; height: auto; display: block; margin: 0 auto; }
+        
+        /* Puntos de Alerta sobre la imagen */
+        .indicator { position: absolute; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
+        .label { position: absolute; font-size: 0.65rem; font-weight: bold; padding: 2px 5px; border-radius: 4px; color: white; white-space: nowrap; }
+        
+        /* Coordenadas para BIO150S */
+        #pos-motor { top: 25%; left: 45%; } /* Motor Ducar */
+        #pos-eje { top: 60%; left: 42%; }   /* Rodamientos tambor */
+        #pos-cuchillas { top: 45%; left: 65%; } /* Tolva/Cuchillas */
 
+        .timer-box { background: #1a1a1a; color: #00ff00; font-family: monospace; font-size: 2.5rem; text-align: center; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+        .grid-status { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .status-item { padding: 10px; border-radius: 8px; font-size: 0.8rem; background: #f8f9fa; border-left: 5px solid #ccc; }
+        .urgent { border-left-color: var(--danger) !important; background: #fff1f1; }
+        .btn { padding: 15px; border: none; border-radius: 8px; font-weight: bold; width: 100%; color: white; margin-bottom: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header" style="text-align:center">
+        <h3 style="margin:0">IES San Diego de Alcalá</h3>
+        <p style="font-size:0.8rem; color:var(--gray)">Mantenimiento BIO150S (Ducar 420cc)</p>
+    </div>
+
+    <div class="machine-container">
+        <img src="https://millasur.com/images/productos/anova-biotrituradora-gasolina-bio150s-15-cv.jpg" class="machine-img">
+        
+        <div id="pos-motor" class="indicator"></div>
+        <div style="top:20%; left:45%" class="label" id="lbl-motor">MOTOR</div>
+        
+        <div id="pos-eje" class="indicator"></div>
+        <div style="top:65%; left:35%" class="label" id="lbl-eje">RODAMIENTOS</div>
+
+        <div id="pos-cuchillas" class="indicator"></div>
+        <div style="top:40%; left:70%" class="label" id="lbl-cuchillas">CUCHILLAS</div>
+    </div>
+
+    <div class="timer-box" id="timer">00:00:00</div>
+
+    <div class="grid-status">
+        <div id="card-oil" class="status-item">Aceite Motor: <br><strong id="oil-val">--</strong>h restantes</div>
+        <div id="card-clean" class="status-item">Limpieza: <br><strong id="clean-val">--</strong>h restantes</div>
+        <div id="card-spark" class="status-item">Bujía/Filtro: <br><strong id="spark-val">--</strong>h restantes</div>
+        <div class="status-item">Uso Total: <br><strong id="total-val">0.00</strong>h</div>
+    </div>
+
+    <input type="text" id="prof" placeholder="Nombre Profesor" style="width:100%; padding:12px; margin-bottom:10px; border-radius:8px; border:1px solid #ccc">
+    
+    <button class="btn" style="background:var(--success)" id="startBtn" onclick="startT()">ARRANCAR</button>
+    <button class="btn" style="background:var(--danger); display:none" id="stopBtn" onclick="stopT()">DETENER</button>
+    <button class="btn" style="background:var(--primary)" onclick="generatePDF()">REPORTE PDF</button>
+</div>
+
+<script>
+    const { jsPDF } = window.jspdf;
+    let timerI, startTime;
+    let data = JSON.parse(localStorage.getItem('bio_ies_final')) || { total: 0, lastOil: 0, lastClean: 0, history: [] };
+
+    function updateStatus() {
+        document.getElementById('total-val').innerText = data.total.toFixed(2);
+        
+        // Lógica de horas según manual
+        let oilLeft = (data.lastOil === 0 ? 5 : 25) - (data.total % (data.lastOil === 0 ? 5 : 25));
+        let cleanLeft = 5 - (data.total % 5);
+        let sparkLeft = 100 - (data.total % 100);
+
+        document.getElementById('oil-val').innerText = oilLeft.toFixed(1);
+        document.getElementById('clean-val').innerText = cleanLeft.toFixed(1);
+        document.getElementById('spark-val').innerText = sparkLeft.toFixed(1);
+
+        // Colores de indicadores (Semáforo)
+        setCol('lbl-motor', 'pos-motor', 'card-oil', oilLeft <= 2);
+        setCol('lbl-eje', 'pos-eje', null, false, var(--warning)); // Siempre aviso de grasa antes de usar
+        setCol('lbl-cuchillas', 'pos-cuchillas', 'card-spark', sparkLeft <= 10);
+    }
+
+    function setCol(lblId, dotId, cardId, isUrgent, defaultCol) {
+        let col = isUrgent ? 'var(--danger)' : (defaultCol || 'var(--success)');
+        document.getElementById(lblId).style.backgroundColor = col;
+        document.getElementById(dotId).style.backgroundColor = col;
+        if(cardId && isUrgent) document.getElementById(cardId).classList.add('urgent');
+    }
+
+    function startT() {
+        if(!document.getElementById('prof').value) return alert("Indique el profesor");
+        startTime = Date.now();
+        document.getElementById('startBtn').style.display = "none";
+        document.getElementById('stopBtn').style.display = "block";
+        timerI = setInterval(() => {
+            let d = (Date.now() - startTime) / 1000;
+            let h = Math.floor(d/3600), m = Math.floor((d%3600)/60), s = Math.floor(d%60);
+            document.getElementById('timer').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }, 1000);
+    }
+
+    function stopT() {
+        clearInterval(timerI);
+        let sH = (Date.now() - startTime) / 3600000;
+        data.total += sH;
+        data.history.push({ p: document.getElementById('prof').value, f: new Date().toLocaleString(), h: sH.toFixed(2) });
+        localStorage.setItem('bio_ies_final', JSON.stringify(data));
+        location.reload();
+    }
+
+    function generatePDF() {
+        const doc = new jsPDF();
+        doc.text("IES SAN DIEGO DE ALCALA - BIO150S", 20, 20);
+        doc.text(`Horas Totales: ${data.total.toFixed(2)}h`, 20, 30);
+        doc.save("mantenimiento.pdf");
+    }
+
+    updateStatus();
+</script>
+</body>
+</html>
