@@ -2,161 +2,123 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor Técnico BIO150S - IES San Diego de Alcalá</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BIO150S - IES San Diego</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root { --primary: #004085; --danger: #dc3545; --success: #28a745; --warning: #ffc107; --dark: #1a1a1a; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 10px; margin: 0; }
-        .container { background: white; width: 100%; max-width: 600px; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin: auto; }
-        
-        /* Esquema Técnico Robusto (Sin imágenes externas) */
-        .machine-box { width: 100%; height: 200px; background: #e0e0e0; border-radius: 10px; position: relative; margin-bottom: 20px; border: 2px solid #ccc; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .draw-body { width: 120px; height: 80px; background: #2e7d32; border-radius: 5px; position: relative; }
-        .draw-hopper { width: 60px; height: 100px; background: #2e7d32; position: absolute; right: -30px; top: -40px; transform: rotate(-20deg); border-top: 5px solid #1b5e20; }
-        .draw-wheel { width: 40px; height: 40px; background: #333; border-radius: 50%; position: absolute; bottom: -20px; left: 10px; border: 4px border-style: double; border-color: #666; }
-        
-        .point-tag { position: absolute; padding: 4px 8px; border-radius: 10px; font-size: 0.65rem; color: white; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        #tag-motor { top: 20px; left: 20px; background: var(--primary); }
-        #tag-grasa { bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--warning); color: black; }
-        #tag-cuchilla { top: 30px; right: 20px; background: var(--danger); }
-
-        .timer-display { background: var(--dark); color: #00ff00; font-family: monospace; font-size: 2.8rem; text-align: center; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 3px solid #444; }
-        
-        .checklist-card { background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ffeeba; }
-        .check-item { display: flex; align-items: center; margin-bottom: 10px; font-size: 0.9rem; font-weight: 500; }
-        .check-item input { margin-right: 12px; transform: scale(1.3); }
-
-        .grid-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .stat-box { background: #f8f9fa; padding: 10px; border-radius: 8px; border-left: 5px solid #ddd; font-size: 0.8rem; }
-        .btn { padding: 15px; border: none; border-radius: 8px; font-weight: bold; width: 100%; color: white; margin-bottom: 8px; cursor: pointer; font-size: 1rem; }
-        .btn-reset { padding: 4px 8px; font-size: 0.6rem; background: #666; margin-top: 5px; border-radius: 4px; }
+        :root { --primary: #0056b3; --accent: #007bff; --bg: #f8f9fa; --text: #212529; --danger: #e63946; --success: #2a9d8f; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
+        .app-card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); max-width: 500px; margin: auto; }
+        h1 { font-size: 1.4rem; margin: 0; color: var(--primary); text-align: center; }
+        .safety-badge { background: #fff3cd; border: 1px solid #ffeeba; padding: 10px; border-radius: 12px; font-size: 0.8rem; margin: 15px 0; display: flex; align-items: center; gap: 10px; }
+        .timer-display { font-size: 4rem; font-weight: 800; text-align: center; font-variant-numeric: tabular-nums; letter-spacing: -2px; margin: 20px 0; color: #1d1d1f; }
+        .btn { border: none; border-radius: 15px; padding: 18px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; width: 100%; margin-bottom: 12px; }
+        .btn-main { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(0,86,179,0.3); }
+        .btn-main:disabled { background: #dee2e6; color: #adb5bd; box-shadow: none; }
+        .btn-danger { background: #fff; color: var(--danger); border: 2px solid var(--danger); }
+        .maint-bar-container { background: #eee; height: 10px; border-radius: 5px; margin-top: 5px; overflow: hidden; }
+        .maint-bar-fill { background: var(--success); height: 100%; transition: width 0.5s; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .stat-box { background: #f1f3f5; padding: 15px; border-radius: 15px; text-align: center; }
+        .stat-val { display: block; font-size: 1.2rem; font-weight: bold; color: var(--primary); }
+        .checklist { margin: 20px 0; }
+        .check-item { display: flex; align-items: center; background: #f8f9fa; padding: 12px; border-radius: 12px; margin-bottom: 8px; font-size: 0.9rem; }
+        .check-item input { width: 20px; height: 20px; margin-right: 15px; accent-color: var(--primary); }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div style="text-align:center; margin-bottom:15px;">
-        <h2 style="margin:0; color:var(--primary);">IES San Diego de Alcalá</h2>
-        <small>Gestión Técnica ANOVA BIO150S</small>
+<div class="app-card">
+    <h1>IES San Diego de Alcalá</h1>
+    <p style="text-align: center; font-size: 0.8rem; margin-top: 5px;">BIO150S - Mantenimiento e Incidencias</p>
+
+    <div class="safety-badge">
+        <span>⚠️</span>
+        <div><strong>Distancia: 15m.</strong> <br>EPIs: Gafas, guantes y protección auditiva obligatorios.</div>
     </div>
 
-    <div class="machine-box">
-        <div class="draw-body">
-            <div class="draw-hopper"></div>
-            <div class="draw-wheel"></div>
-        </div>
-        <div id="tag-motor" class="point-tag">MOTOR DUCAR 420cc</div>
-        <div id="tag-grasa" class="point-tag">GRASA DE LITIO</div>
-        <div id="tag-cuchilla" class="point-tag">TAMBOR CUCHILLAS</div>
+    <input type="text" id="profName" placeholder="👤 Nombre del Profesor" style="width:100%; padding:15px; border-radius:12px; border:1px solid #ddd; margin-bottom:15px; font-size:1rem; box-sizing:border-box;">
+
+    <div id="checklist" class="checklist">
+        <label class="check-item"><input type="checkbox" onchange="check()">Aceite verificado (10W-30)</label>
+        <label class="check-item"><input type="checkbox" onchange="check()">Engrase rodamientos (Litio)</label>
+        <label class="check-item"><input type="checkbox" onchange="check()">Área despejada y segura</label>
     </div>
 
-    <div class="timer-display" id="timer">00:00:00</div>
+    <div class="timer-display" id="display">00:00</div>
 
-    <div class="checklist-card" id="checklist">
-        <strong style="display:block; margin-bottom:10px;">✅ VERIFICACIÓN OBLIGATORIA:</strong>
-        <label class="check-item"><input type="checkbox" class="step"> Aceite 10W-30 verificado (1.2L)</label>
-        <label class="check-item"><input type="checkbox" class="step"> Engrase de cojinetes realizado</label>
-        <label class="check-item"><input type="checkbox" class="step"> Alumnos con Gafas, Botas y Guantes</label>
-        <label class="check-item"><input type="checkbox" class="step"> Área despejada (15 metros radio)</label>
-        <input type="text" id="profesor" placeholder="Nombre del Profesor Responsable" style="width:100%; padding:10px; margin-top:5px; border-radius:5px; border:1px solid #ccc; box-sizing:border-box;">
-    </div>
+    <button id="btnStart" class="btn btn-main" onclick="start()" disabled>INICIAR TRABAJO</button>
+    <button id="btnStop" class="btn btn-danger" onclick="stop()" style="display:none">DETENER SESIÓN</button>
+    <button class="btn" style="background:#f1f3f5; color:#495057;" onclick="incident()">📝 Reportar Incidencia</button>
 
-    <button class="btn" style="background:var(--success)" id="startBtn" onclick="startSession()" disabled>DESBLOQUEAR Y ARRANCAR</button>
-    <button class="btn" style="background:var(--danger); display:none;" id="stopBtn" onclick="stopSession()">FINALIZAR TRABAJO</button>
-
-    <div class="grid-stats">
-        <div class="stat-box" id="card-oil">
-            ACEITE (Cada 25h)<br><strong id="oil-val">--</strong>h restantes
-            <button class="btn-reset" onclick="resetMaintenance('lastOil')">Reset Cambio</button>
-        </div>
-        <div class="stat-box" id="card-clean">
-            LIMPIEZA (Cada 5h)<br><strong id="clean-val">--</strong>h restantes
-            <button class="btn-reset" onclick="resetMaintenance('lastClean')">Reset Limpieza</button>
+    <div class="stats-grid">
+        <div class="stat-box">
+            <span style="font-size: 0.7rem;">HORAS TOTALES</span>
+            <span class="stat-val" id="totalHours">0.00</span>
         </div>
         <div class="stat-box">
-            BUJÍA/FILTRO (100h)<br><strong id="spark-val">--</strong>h restantes
-        </div>
-        <div class="stat-box">
-            USO TOTAL MÁQUINA<br><strong id="total-val">0.00</strong>h
+            <span style="font-size: 0.7rem;">VIDA DEL ACEITE</span>
+            <div class="maint-bar-container"><div id="oilBar" class="maint-bar-fill"></div></div>
         </div>
     </div>
 
-    <button class="btn" style="background:var(--primary)" onclick="generatePDF()">DESCARGAR REPORTE HISTÓRICO</button>
+    <button class="btn" style="margin-top:20px; background:var(--text); color:white" onclick="pdf()">EXPORTAR REPORTE PDF</button>
 </div>
 
 <script>
+    let timer, startT, data = JSON.parse(localStorage.getItem('bio_v6')) || { total: 0, lastOil: 0, history: [], incidents: [] };
     const { jsPDF } = window.jspdf;
-    let timerRef, startTime;
-    let data = JSON.parse(localStorage.getItem('ies_sd_v7')) || { total: 0, lastOil: 0, lastClean: 0, history: [] };
 
-    // Validación del Checklist
-    document.addEventListener('change', () => {
-        const checks = document.querySelectorAll('.step');
-        const allChecked = Array.from(checks).every(c => c.checked);
-        const nameOk = document.getElementById('profesor').value.length > 3;
-        document.getElementById('startBtn').disabled = !(allChecked && nameOk);
-        document.getElementById('startBtn').style.opacity = (allChecked && nameOk) ? "1" : "0.5";
-    });
-
-    function updateStats() {
-        document.getElementById('total-val').innerText = data.total.toFixed(2);
-        
-        // El primer cambio de aceite según manual es a las 5h, luego 25h.
-        let nextOilLimit = (data.lastOil === 0 && data.total < 5) ? 5 : (data.lastOil + 25);
-        let oilLeft = Math.max(0, nextOilLimit - data.total);
-        let cleanLeft = Math.max(0, (data.lastClean + 5) - data.total);
-        let sparkLeft = Math.max(0, 100 - (data.total % 100));
-
-        document.getElementById('oil-val').innerText = oilLeft.toFixed(1);
-        document.getElementById('clean-val').innerText = cleanLeft.toFixed(1);
-        document.getElementById('spark-val').innerText = sparkLeft.toFixed(1);
-
-        // Colores de alerta
-        document.getElementById('card-oil').style.borderLeftColor = oilLeft < 2 ? "var(--danger)" : "var(--success)";
-        document.getElementById('card-clean').style.borderLeftColor = cleanLeft < 1 ? "var(--danger)" : "var(--success)";
+    function check() {
+        const c = document.querySelectorAll('#checklist input:checked').length === 3;
+        const n = document.getElementById('profName').value.length > 3;
+        document.getElementById('btnStart').disabled = !(c && n);
     }
 
-    function startSession() {
-        startTime = Date.now();
-        document.getElementById('startBtn').style.display = "none";
-        document.getElementById('stopBtn').style.display = "block";
-        document.getElementById('checklist').style.opacity = "0.5";
-        document.getElementById('checklist').style.pointerEvents = "none";
-        timerRef = setInterval(() => {
-            let diff = (Date.now() - startTime) / 1000;
-            let h = Math.floor(diff/3600), m = Math.floor((diff%3600)/60), s = Math.floor(diff%60);
-            document.getElementById('timer').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    function start() {
+        startT = Date.now();
+        document.getElementById('btnStart').style.display = 'none';
+        document.getElementById('btnStop').style.display = 'block';
+        document.getElementById('checklist').style.display = 'none';
+        document.getElementById('profName').disabled = true;
+        timer = setInterval(() => {
+            let d = new Date(Date.now() - startT);
+            document.getElementById('display').innerText = d.toISOString().substr(14, 5);
         }, 1000);
     }
 
-    function stopSession() {
-        clearInterval(timerRef);
-        let sessionH = (Date.now() - startTime) / 3600000;
-        data.total += sessionH;
-        data.history.push({ p: document.getElementById('profesor').value, f: new Date().toLocaleString(), h: sessionH.toFixed(2) });
-        localStorage.setItem('ies_sd_v7', JSON.stringify(data));
+    function stop() {
+        clearInterval(timer);
+        let h = (Date.now() - startT) / 3600000;
+        data.total += h;
+        data.history.push({prof: document.getElementById('profName').value, fecha: new Date().toLocaleDateString(), h: h.toFixed(2)});
+        localStorage.setItem('bio_v6', JSON.stringify(data));
         location.reload();
     }
 
-    function resetMaintenance(type) {
-        if(confirm("¿Confirmas que has realizado esta tarea de mantenimiento?")) {
-            data[type] = data.total;
-            localStorage.setItem('ies_sd_v7', JSON.stringify(data));
-            updateStats();
-        }
+    function incident() {
+        let t = prompt("Describa el problema:");
+        if(t) { data.incidents.push({prof: document.getElementById('profName').value || '?', t, f: new Date().toLocaleString()}); 
+        localStorage.setItem('bio_v6', JSON.stringify(data)); alert("Registrado."); }
     }
 
-    function generatePDF() {
+    function pdf() {
         const doc = new jsPDF();
-        doc.text("IES SAN DIEGO DE ALCALA - REGISTRO BIO150S", 20, 20);
+        doc.text("IES SAN DIEGO DE ALCALA - REPORTE BIO150S", 20, 20);
         doc.text(`Horas Totales: ${data.total.toFixed(2)}h`, 20, 30);
-        doc.text("Ultimos usos:", 20, 45);
-        data.history.slice(-10).forEach((h, i) => doc.text(`${h.f} - Prof: ${h.p} - Duracion: ${h.h}h`, 25, 55 + (i*7)));
-        doc.save("Reporte_BIO150S.pdf");
+        let y = 50;
+        data.incidents.slice(-5).forEach(i => { doc.text(`- ${i.f}: ${i.t}`, 20, y); y+=10; });
+        doc.save("bio150s_ies_sandiego.pdf");
     }
 
-    updateStats();
+    function ui() {
+        document.getElementById('totalHours').innerText = data.total.toFixed(2);
+        let limit = data.lastOil === 0 ? 5 : 25;
+        let prog = ((data.total - data.lastOil) / limit) * 100;
+        document.getElementById('oilBar').style.width = Math.min(100, 100 - prog) + "%";
+        if(prog >= 100) document.getElementById('oilBar').style.background = "var(--danger)";
+    }
+    ui();
 </script>
 </body>
 </html>
