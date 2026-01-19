@@ -6,70 +6,75 @@
     <title>BIO150S - IES San Diego</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root { --primary: #0056b3; --danger: #e63946; --success: #2a9d8f; --bg: #f0f2f5; }
+        :root { --primary: #0056b3; --danger: #e63946; --success: #2a9d8f; --bg: #f2f2f7; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; }
-        .app-card { background: white; border-radius: 25px; padding: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); max-width: 450px; margin: auto; }
-        /* Contenedor de imagen optimizado */
-        .img-container { width: 100%; height: 220px; border-radius: 15px; overflow: hidden; margin-bottom: 15px; background: #eee; display: flex; align-items: center; justify-content: center; }
-        .machine-img { width: 100%; height: 100%; object-fit: contain; }
-        h1 { font-size: 1.4rem; color: var(--primary); text-align: center; margin: 5px 0; }
-        .timer { font-size: 3.5rem; font-weight: bold; text-align: center; margin: 15px 0; font-family: monospace; }
-        .btn { border: none; border-radius: 15px; padding: 18px; font-size: 1.1rem; font-weight: bold; width: 100%; margin-bottom: 10px; transition: 0.3s; }
-        .btn-start { background: var(--primary); color: white; }
-        .btn-start:disabled { background: #ccc; }
-        .btn-stop { background: var(--danger); color: white; display: none; }
+        .app-card { background: white; border-radius: 25px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 450px; margin: auto; }
+        .machine-drawing { width: 100%; height: 180px; background: #f8f9fa; border-radius: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; }
+        h1 { font-size: 1.3rem; color: var(--primary); text-align: center; margin: 0; }
+        .timer { font-size: 3.5rem; font-weight: bold; text-align: center; margin: 15px 0; font-family: monospace; color: #1c1c1e; }
+        .btn { border: none; border-radius: 15px; padding: 18px; font-size: 1.1rem; font-weight: bold; width: 100%; margin-bottom: 10px; transition: 0.3s; color: white; }
+        .btn-start { background: var(--primary); }
+        .btn-start:disabled { background: #d1d1d6; color: #8e8e93; }
+        .btn-stop { background: var(--danger); display: none; }
         .maint-sec { margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
-        .bar-bg { background: #e9ecef; height: 12px; border-radius: 6px; margin: 8px 0 15px; overflow: hidden; }
+        .bar-bg { background: #e5e5ea; height: 10px; border-radius: 5px; margin: 5px 0 12px; overflow: hidden; }
         .bar-fill { height: 100%; background: var(--success); width: 100%; transition: 0.5s; }
-        .check-box { background: #fff3cd; padding: 15px; border-radius: 15px; margin-bottom: 15px; font-size: 0.9rem; }
-        .check-item { display: flex; align-items: center; margin-bottom: 10px; }
-        .check-item input { width: 22px; height: 22px; margin-right: 12px; }
+        .check-box { background: #fff9db; padding: 15px; border-radius: 15px; margin-bottom: 15px; font-size: 0.85rem; border: 1px solid #ffe066; }
+        .check-item { display: flex; align-items: center; margin-bottom: 8px; }
+        .check-item input { width: 22px; height: 22px; margin-right: 12px; accent-color: var(--primary); }
     </style>
 </head>
 <body>
 
 <div class="app-card">
-    <div class="img-container">
-        <img src="https://www.anova.es/wp-content/uploads/2019/11/BIO150S-3.jpg" alt="BIO150S" class="machine-img" onerror="this.src='https://via.placeholder.com/400x300?text=BIO150S+ANOVA'">
+    <div class="machine-drawing">
+        <svg viewBox="0 0 100 80" width="150" height="120">
+            <rect x="30" y="40" width="40" height="30" rx="2" fill="#333" />
+            <path d="M70 45 L90 20 L95 25 L75 50 Z" fill="#666" /> 
+            <path d="M30 45 L5 15 L15 10 L35 45 Z" fill="#0056b3" />
+            <circle cx="35" cy="70" r="8" fill="#1a1a1a" />
+            <circle cx="65" cy="70" r="8" fill="#1a1a1a" />
+            <rect x="40" y="30" width="20" height="15" fill="#555" />
+        </svg>
     </div>
     
     <h1>IES San Diego de Alcalá</h1>
-    <p style="text-align: center; font-size: 0.8rem; color: #666;">Control Profesional de Triturado</p>
+    <p style="text-align: center; font-size: 0.8rem; color: #666; margin-bottom: 15px;">ANOVA BIO150S (420cc)</p>
 
     <div class="check-box" id="checklist">
-        <strong>⚠️ SEGURIDAD (Manual Pág. 8):</strong>
+        <strong>⚠️ SEGURIDAD Y PRE-ARRANQUE:</strong>
         <label class="check-item"><input type="checkbox" onchange="val()"> Aceite 10W-30 (1.2L)</label>
         <label class="check-item"><input type="checkbox" onchange="val()"> Grasa de Litio en rodamientos</label>
-        <label class="check-item"><input type="checkbox" onchange="val()"> EPIs y Distancia 15m</label>
+        <label class="check-item"><input type="checkbox" onchange="val()"> EPIs (Gafas/Botas) y Área 15m</label>
     </div>
 
-    <input type="text" id="prof" placeholder="👤 Nombre del Profesor" oninput="val()" style="width:100%; padding:15px; border-radius:12px; border:1px solid #ddd; margin-bottom:15px; font-size:1rem; box-sizing:border-box;">
+    <input type="text" id="prof" placeholder="👤 Nombre del Profesor" oninput="val()" style="width:100%; padding:15px; border-radius:12px; border:1px solid #d1d1d6; margin-bottom:15px; font-size:1rem; box-sizing:border-box;">
 
     <div class="timer" id="time">00:00</div>
 
-    <button id="go" class="btn btn-start" onclick="start()" disabled>INICIAR MOTOR</button>
-    <button id="end" class="btn btn-stop" onclick="stop()">DETENER Y GUARDAR</button>
+    <button id="go" class="btn btn-start" onclick="start()" disabled>INICIAR TRABAJO</button>
+    <button id="end" class="btn btn-stop" onclick="stop()">FINALIZAR Y GUARDAR</button>
 
     <div class="maint-sec">
-        <div style="font-size: 0.8rem; font-weight: bold;">ACEITE MOTOR (Próx. 25h / Inicial 5h)</div>
+        <div style="font-size: 0.75rem; font-weight: bold; color: #3a3a3c;">ACEITE (Próx. 25h / Inicial 5h)</div>
         <div class="bar-bg"><div id="oilB" class="bar-fill"></div></div>
         
-        <div style="font-size: 0.8rem; font-weight: bold;">LIMPIEZA ALETAS (Cada 5h)</div>
+        <div style="font-size: 0.75rem; font-weight: bold; color: #3a3a3c;">LIMPIEZA MOTOR (Cada 5h)</div>
         <div class="bar-bg"><div id="cleanB" class="bar-fill"></div></div>
         
-        <div style="font-size: 0.8rem; font-weight: bold;">BUJÍA Y FILTRO (Cada 100h)</div>
+        <div style="font-size: 0.75rem; font-weight: bold; color: #3a3a3c;">FILTRO / BUJÍA (Cada 100h)</div>
         <div class="bar-bg"><div id="majorB" class="bar-fill"></div></div>
     </div>
 
-    <button class="btn" style="background:#333; color:white; margin-top:15px;" onclick="doPDF()">DESCARGAR REPORTE PDF</button>
+    <button class="btn" style="background:#3a3a3c; margin-top:10px;" onclick="doPDF()">REPORTE PDF</button>
 </div>
 
 <script>
-    let t, s, d = JSON.parse(localStorage.getItem('bio_vFinal')) || { tot: 0, lO: 0, lC: 0, lM: 0 };
+    let t, s, d = JSON.parse(localStorage.getItem('bio_vSD')) || { tot: 0, lO: 0, lC: 0, lM: 0 };
     
     function val() {
         const c = document.querySelectorAll('#checklist input:checked').length === 3;
-        const n = document.getElementById('prof').value.length > 3;
+        const n = document.getElementById('prof').value.trim().length > 3;
         document.getElementById('go').disabled = !(c && n);
     }
 
@@ -77,7 +82,8 @@
         s = Date.now();
         document.getElementById('go').style.display = 'none';
         document.getElementById('end').style.display = 'block';
-        document.getElementById('checklist').style.opacity = '0.3';
+        document.getElementById('checklist').style.opacity = '0.4';
+        document.getElementById('prof').disabled = true;
         t = setInterval(() => {
             let n = new Date(Date.now() - s);
             document.getElementById('time').innerText = n.toISOString().substr(14, 5);
@@ -88,7 +94,7 @@
         clearInterval(t);
         let h = (Date.now() - s) / 3600000;
         d.tot += h;
-        localStorage.setItem('bio_vFinal', JSON.stringify(d));
+        localStorage.setItem('bio_vSD', JSON.stringify(d));
         location.reload();
     }
 
@@ -102,17 +108,12 @@
         let p = Math.max(0, 100 - (cur / lim * 100));
         let e = document.getElementById(id);
         e.style.width = p + "%";
-        if(p < 20) e.style.background = "var(--danger)";
+        if(p < 15) e.style.background = "var(--danger)";
     }
 
     function doPDF() {
-        const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
+        doc.setFontSize(18);
         doc.text("IES SAN DIEGO DE ALCALA - BIO150S", 20, 20);
-        doc.text("Horas Totales: " + d.tot.toFixed(2) + " h", 20, 30);
-        doc.save("reporte.pdf");
-    }
-    bars();
-</script>
-</body>
-</html>
+        doc.setFontSize(12);
+        doc.text("Horas Totales: " + d.tot.toFixed(2)
