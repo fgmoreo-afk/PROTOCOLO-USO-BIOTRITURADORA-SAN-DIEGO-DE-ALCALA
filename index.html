@@ -3,183 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ANOVA BIO150S Control Pro - IES San Diego</title>
+    <title>ANOVA BIO150S Pro - IES San Diego</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root { --blue: #007AFF; --red: #FF3B30; --green: #34C759; --bg: #F2F2F7; --card: #FFFFFF; --dark: #1C1C1E; --warning: #FFF9E6; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 10px; color: var(--dark); }
-        .app-card { background: var(--card); border-radius: 20px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 500px; margin: auto; }
-        .header { border-bottom: 1px solid #E5E5EA; margin-bottom: 15px; padding-bottom: 10px; text-align: center; }
+        :root { --blue: #007AFF; --red: #FF3B30; --green: #34C759; --bg: #F2F2F7; --card: #FFFFFF; --warning: #FFF9E6; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 10px; color: #1C1C1E; }
+        .app-card { background: var(--card); border-radius: 20px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); max-width: 500px; margin: auto; }
         
-        /* Contenedor de Imagen */
-        .machine-frame { width: 100%; height: 200px; background: white; border-radius: 15px; margin-bottom: 15px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid #E5E5EA; }
-        .machine-frame img { max-width: 90%; max-height: 90%; object-fit: contain; }
-        
-        /* Checklist de Seguridad */
-        .safety-checklist { background: var(--warning); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #FFE69C; font-size: 0.85rem; }
-        .safety-checklist strong { display: block; margin-bottom: 10px; color: #856404; }
-        .check-item { display: flex; align-items: center; margin-bottom: 10px; cursor: pointer; }
+        /* Contenedor de Imagen mejorado */
+        .img-container { width: 100%; height: 200px; background: white; border-radius: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; border: 1px solid #E5E5EA; overflow: hidden; }
+        .img-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+        .safety-box { background: var(--warning); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #FFE69C; }
+        .check-item { display: flex; align-items: center; margin-bottom: 10px; font-size: 0.85rem; font-weight: 500; }
         .check-item input { width: 22px; height: 22px; margin-right: 12px; accent-color: var(--blue); }
 
-        .timer { font-size: 3.5rem; font-weight: 700; text-align: center; margin: 15px 0; font-variant-numeric: tabular-nums; letter-spacing: -2px; }
+        .timer { font-size: 3.5rem; font-weight: 800; text-align: center; margin: 15px 0; font-family: monospace; letter-spacing: -2px; }
         
-        .btn { border: none; border-radius: 12px; padding: 16px; font-size: 1rem; font-weight: 600; width: 100%; margin-bottom: 8px; cursor: pointer; touch-action: manipulation; transition: 0.2s; }
+        .btn { border: none; border-radius: 12px; padding: 16px; font-size: 1rem; font-weight: 600; width: 100%; margin-bottom: 8px; cursor: pointer; touch-action: manipulation; }
         .btn-start { background: var(--blue); color: white; }
-        .btn-start:disabled { background: #D1D1D6; color: white; cursor: not-allowed; }
+        .btn-start:disabled { background: #D1D1D6; color: white; }
         .btn-stop { background: var(--red); color: white; display: none; }
-        .btn-maint { background: #F2F2F7; color: var(--dark); padding: 6px 10px; font-size: 0.65rem; width: auto; margin: 0; border-radius: 6px; }
         
-        .maint-section { margin-top: 20px; border-top: 1px solid #EEE; padding-top: 15px; }
         .maint-card { background: #F8F8FA; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #E5E5EA; }
-        .maint-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.8rem; font-weight: 600; }
+        .maint-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.75rem; font-weight: bold; }
         .progress-track { background: #E5E5EA; height: 8px; border-radius: 4px; overflow: hidden; }
         .progress-fill { height: 100%; background: var(--green); transition: width 0.5s; }
 
         input, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #D1D1D6; margin-bottom: 10px; box-sizing: border-box; font-size: 1rem; }
-        .geo-btn { background: #E5E5EA; color: #1C1C1E; font-size: 0.8rem; padding: 10px; margin-bottom: 10px; }
-        .manual-link { display: block; text-align: center; color: var(--blue); font-size: 0.9rem; margin-top: 20px; text-decoration: underline; font-weight: 600; }
+        .manual-btn { display: block; text-align: center; background: #3A3A3C; color: white; padding: 12px; border-radius: 10px; text-decoration: none; font-size: 0.9rem; font-weight: 600; margin-top: 15px; }
     </style>
 </head>
 <body>
 
 <div class="app-card">
-    <div class="header">
-        <h1>IES San Diego de Alcalá</h1>
-        <p style="margin:0; font-size:0.75rem; color:#8E8E93;">CONTROL TÉCNICO ANOVA BIO150S</p>
+    <div style="text-align: center; margin-bottom: 15px;">
+        <h1 style="font-size: 1.2rem; margin: 0; color: var(--blue);">IES SAN DIEGO DE ALCALÁ</h1>
+        <small style="color: #8E8E93;">GESTIÓN ANOVA BIO150S</small>
     </div>
 
-    <div class="machine-frame">
-        <img src="https://millasur.com/images/productos/original/biotrituradora-anova-bio150s-420cc-1738.jpg" alt="ANOVA BIO150S" onerror="this.src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0KkM6WcIu6i2yS67iT9zE9_K8Z3Xq6pWpAQ&s'">
+    <div class="img-container">
+        <img src="https://millasur.com/images/productos/original/biotrituradora-anova-bio150s-420cc-1738.jpg" alt="BIO150S" onerror="this.src='https://www.anova.es/wp-content/uploads/2019/11/BIO150S-3.jpg'">
     </div>
 
-    <div class="safety-checklist" id="safetyGroup">
-        <strong>⚠️ CHECKLIST DE SEGURIDAD OBLIGATORIO:</strong>
-        <label class="check-item"><input type="checkbox" onchange="validateForm()"> Aceite 10W-30 (1.2L) y Grasa Verificados</label>
-        <label class="check-item"><input type="checkbox" onchange="validateForm()"> Alumnos con EPIs y zona 15m despejada</label>
-        <label class="check-item"><input type="checkbox" onchange="validateForm()"> Tolva libre de objetos extraños</label>
+    <div class="safety-box" id="safetyCheck">
+        <strong style="display: block; margin-bottom: 10px; color: #856404; font-size: 0.8rem;">⚠️ PROTOCOLO OBLIGATORIO:</strong>
+        <label class="check-item"><input type="checkbox" onchange="val()"> Aceite 10W-30 y Engrase OK</label>
+        <label class="check-item"><input type="checkbox" onchange="val()"> Alumnos con EPIs y zona 15m</label>
+        <label class="check-item"><input type="checkbox" onchange="val()"> Tolva y Cuchillas revisadas</label>
     </div>
 
-    <input type="text" id="profesor" placeholder="👤 Nombre del Profesor" oninput="validateForm()">
-    <textarea id="estudiantes" placeholder="👥 Alumnos presentes en la práctica..." rows="2" oninput="validateForm()"></textarea>
-    <textarea id="notas" placeholder="📝 Observaciones o incidencias del día..." rows="2"></textarea>
+    <input type="text" id="prof" placeholder="👤 Profesor Responsable" oninput="val()">
+    <textarea id="alu" placeholder="👥 Alumnos presentes..." rows="2" oninput="val()"></textarea>
+    <textarea id="obs" placeholder="📝 Notas/Ubicación..." rows="2"></textarea>
 
-    <button class="btn geo-btn" onclick="getLocation()">📍 MARCAR UBICACIÓN GPS</button>
-    <div id="geoData" style="font-size: 0.7rem; color: var(--blue); margin-bottom: 10px; display: none; text-align: center;"></div>
+    <div class="timer" id="disp">00:00</div>
 
-    <div class="timer" id="stopwatch">00:00</div>
+    <button id="go" class="btn btn-start" onclick="start()" disabled>INICIAR OPERACIÓN</button>
+    <button id="end" class="btn btn-stop" onclick="stop()">DETENER Y GUARDAR</button>
 
-    <button id="startBtn" class="btn btn-start" onclick="startWork()" disabled>INICIAR OPERACIÓN</button>
-    <button id="stopBtn" class="btn btn-stop" onclick="stopWork()">DETENER Y GUARDAR</button>
-
-    <div class="maint-section">
-        <h3 style="font-size: 0.85rem; margin-bottom: 12px;">ESTADO DE MANTENIMIENTO (S/ MANUAL)</h3>
-        
+    <div style="margin-top: 20px;">
+        <h4 style="font-size: 0.8rem; margin-bottom: 10px;">MANTENIMIENTO:</h4>
         <div class="maint-card">
-            <div class="maint-info"><span>Aceite (25h / Inicial 5h)</span><button class="btn-maint" onclick="resetM('lO')">RESET</button></div>
+            <div class="maint-info"><span>Aceite (25h / Ini 5h)</span> <button style="font-size: 0.6rem; padding: 4px;" onclick="resetM('lO')">RESET</button></div>
             <div class="progress-track"><div id="barO" class="progress-fill"></div></div>
         </div>
         <div class="maint-card">
-            <div class="maint-info"><span>Limpieza Motor (5h)</span><button class="btn-maint" onclick="resetM('lC')">RESET</button></div>
+            <div class="maint-info"><span>Limpieza (5h)</span> <button style="font-size: 0.6rem; padding: 4px;" onclick="resetM('lC')">RESET</button></div>
             <div class="progress-track"><div id="barC" class="progress-fill"></div></div>
         </div>
         <div class="maint-card">
-            <div class="maint-info"><span>Cuchillas / Correa (50h)</span><button class="btn-maint" onclick="resetM('lB')">RESET</button></div>
+            <div class="maint-info"><span>Cuchillas (50h)</span> <button style="font-size: 0.6rem; padding: 4px;" onclick="resetM('lB')">RESET</button></div>
             <div class="progress-track"><div id="barB" class="progress-fill"></div></div>
         </div>
         <div class="maint-card">
-            <div class="maint-info"><span>Filtro / Bujía (100h)</span><button class="btn-maint" onclick="resetM('lM')">RESET</button></div>
+            <div class="maint-info"><span>Filtro/Bujía (100h)</span> <button style="font-size: 0.6rem; padding: 4px;" onclick="resetM('lM')">RESET</button></div>
             <div class="progress-track"><div id="barM" class="progress-fill"></div></div>
         </div>
     </div>
 
-    <button class="btn" style="background:var(--dark); color:white; margin-top:15px;" onclick="generatePDF()">DESCARGAR ACTA TÉCNICA (PDF)</button>
-    
-    <a href="https://www.anova.es/wp-content/uploads/2019/11/BIO150S_Manual.pdf" class="manual-link" target="_blank">📖 ABRIR MANUAL DE USUARIO (PDF)</a>
+    <button class="btn" style="background: #1C1C1E; color: white; margin-top: 15px;" onclick="pdf()">DESCARGAR REPORTE PDF</button>
+
+    <a href="https://www.anova.es/wp-content/uploads/2019/11/BIO150S_Manual.pdf" class="manual-btn" target="_blank">📖 ABRIR MANUAL OFICIAL (PDF)</a>
 </div>
 
 <script>
-    let timerInt, startMillis, gpsStr = "", db = JSON.parse(localStorage.getItem('IES_SD_V11')) || { tot: 0, lO: 0, lC: 0, lB: 0, lM: 0, logs: [] };
+    let t, s, db = JSON.parse(localStorage.getItem('BIO_IES_FINAL')) || { tot: 0, lO: 0, lC: 0, lB: 0, lM: 0 };
 
-    function validateForm() {
-        const checks = document.querySelectorAll('#safetyGroup input:checked').length === 3;
-        const prof = document.getElementById('profesor').value.trim().length > 3;
-        const alu = document.getElementById('estudiantes').value.trim().length > 3;
-        document.getElementById('startBtn').disabled = !(checks && prof && alu);
+    function val() {
+        const c = document.querySelectorAll('#safetyCheck input:checked').length === 3;
+        const p = document.getElementById('prof').value.length > 3;
+        const a = document.getElementById('alu').value.length > 3;
+        document.getElementById('go').disabled = !(c && p && a);
     }
 
-    function startWork() {
-        startMillis = Date.now();
-        document.getElementById('startBtn').style.display = 'none';
-        document.getElementById('stopBtn').style.display = 'block';
-        document.getElementById('safetyGroup').style.opacity = '0.4';
-        timerInt = setInterval(() => {
-            let diff = new Date(Date.now() - startMillis);
-            document.getElementById('stopwatch').innerText = diff.toISOString().substr(14, 5);
+    function start() {
+        s = Date.now();
+        document.getElementById('go').style.display = 'none';
+        document.getElementById('end').style.display = 'block';
+        t = setInterval(() => {
+            let n = new Date(Date.now() - s);
+            document.getElementById('disp').innerText = n.toISOString().substr(14, 5);
         }, 1000);
     }
 
-    function stopWork() {
-        clearInterval(timerInt);
-        let hours = (Date.now() - startMillis) / 3600000;
-        db.tot += hours;
-        db.logs.push({
-            p: document.getElementById('profesor').value,
-            a: document.getElementById('estudiantes').value,
-            o: document.getElementById('notas').value,
-            g: gpsStr,
-            d: new Date().toLocaleString(),
-            h: hours.toFixed(2)
-        });
-        localStorage.setItem('IES_SD_V11', JSON.stringify(db));
+    function stop() {
+        clearInterval(t);
+        let h = (Date.now() - s) / 3600000;
+        db.tot += h;
+        localStorage.setItem('BIO_IES_FINAL', JSON.stringify(db));
         location.reload();
     }
 
-    function getLocation() {
-        navigator.geolocation.getCurrentPosition(pos => {
-            gpsStr = `${pos.coords.latitude}, ${pos.coords.longitude}`;
-            document.getElementById('geoData').innerText = "📍 Ubicación fijada: " + gpsStr;
-            document.getElementById('geoData').style.display = "block";
-        }, () => alert("Por favor, active el GPS en su iPhone"));
-    }
-
-    function resetM(key) {
-        if(confirm("¿Confirmas que has realizado esta tarea de mantenimiento?")) {
-            db[key] = db.tot;
-            localStorage.setItem('IES_SD_V11', JSON.stringify(db));
-            refreshUI();
+    function resetM(k) {
+        if(confirm("¿Confirmar mantenimiento realizado?")) {
+            db[k] = db.tot;
+            localStorage.setItem('BIO_IES_FINAL', JSON.stringify(db));
+            ui();
         }
     }
 
-    function refreshUI() {
-        updateBar('barO', db.tot - db.lO, db.lO === 0 ? 5 : 25);
-        updateBar('barC', db.tot - db.lC, 5);
-        updateBar('barB', db.tot - db.lB, 50);
-        updateBar('barM', db.tot - db.lM, 100);
+    function ui() {
+        upd('barO', db.tot - db.lO, db.lO === 0 ? 5 : 25);
+        upd('barC', db.tot - db.lC, 5);
+        upd('barB', db.tot - db.lB, 50);
+        upd('barM', db.tot - db.lM, 100);
     }
 
-    function updateBar(id, cur, lim) {
+    function upd(id, cur, lim) {
         let p = Math.max(0, 100 - (cur / lim * 100));
-        let el = document.getElementById(id);
-        el.style.width = p + "%";
-        el.style.background = p < 20 ? "var(--red)" : "var(--green)";
+        let e = document.getElementById(id);
+        e.style.width = p + "%";
+        e.style.background = p < 20 ? "var(--red)" : "var(--green)";
     }
 
-    function generatePDF() {
+    function pdf() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        doc.setFontSize(16);
-        doc.text("IES SAN DIEGO DE ALCALA - BIO150S", 20, 20);
-        doc.setFontSize(10);
-        doc.text(`Total Horas Maquina: ${db.tot.toFixed(2)} h`, 20, 35);
-        if(db.logs.length > 0) {
-            let last = db.logs[db.logs.length-1];
-            doc.text(`Ultima Practica: ${last.d}`, 20, 45);
-            doc.text(`Profesor: ${last.p}`, 20, 50);
-            doc.text(`Obs: ${last.o}`, 20, 55);
-        }
-        doc.save("Reporte_BIO150S_IES_SD.pdf");
+        doc.text("IES SAN DIEGO - REPORTE BIO150S", 20, 20);
+        doc.text("Horas Totales: " + db.tot.toFixed(2) + " h", 20, 30);
+        doc.save("Reporte_BIO150.pdf");
     }
-    refreshUI();
+    ui();
 </script>
 </body>
 </html>
